@@ -6,8 +6,9 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
         {/* ブランド情報 */}
         <div className="md:col-span-1 flex flex-col">
-          <Link href="/" className="font-bold text-gray-900 tracking-widest text-lg mb-4 inline-block">
-            KENOHI Inc.
+          <Link href="/" className="flex items-center gap-2 font-bold text-gray-900 tracking-widest text-lg mb-4">
+            <img src="/icon.png" alt="KENOHI Logo" className="w-8 h-8 rounded-full bg-white p-0.5 object-contain" />
+            <span>KENOHI Inc.</span>
           </Link>
           <p className="text-sm leading-loose">
             株式会社けのひ<br />
@@ -39,8 +40,8 @@ export default function Footer() {
         <div className="md:col-span-1 font-sans">
           <h4 className="font-bold text-gray-900 tracking-widest mb-6 text-sm">LEGAL</h4>
           <ul className="space-y-4 text-sm">
-            <li><Link href="#" className="hover:text-gray-900 transition-colors">プライバシーポリシー</Link></li>
-            <li><Link href="#" className="hover:text-gray-900 transition-colors">特定商取引法に基づく表記</Link></li>
+            <li><Link href="/privacy" className="hover:text-gray-900 transition-colors">プライバシーポリシー</Link></li>
+            <li><Link href="/tokushoho" className="hover:text-gray-900 transition-colors">特定商取引法に基づく表記</Link></li>
           </ul>
         </div>
       </div>
