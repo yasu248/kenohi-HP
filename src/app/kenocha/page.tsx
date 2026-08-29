@@ -1,4 +1,39 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
 export default function Kenocha() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const checkIsOpen = () => {
+      const now = new Date();
+      // 日本時間 (JST) で判定
+      const jstDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+      const day = jstDate.getDay(); // 0: 日, 1: 月, ..., 6: 土
+      const hour = jstDate.getHours();
+      const minutes = jstDate.getMinutes();
+
+      // 平日 (月〜金) かつ 10:00 〜 15:00
+      if (day >= 1 && day <= 5) {
+        const timeValue = hour * 100 + minutes;
+        if (timeValue >= 1000 && timeValue < 1500) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    setIsOpen(checkIsOpen());
+
+    // 1分ごとに更新
+    const timer = setInterval(() => {
+      setIsOpen(checkIsOpen());
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <main className="min-h-screen bg-[#fcfaf8] text-gray-800 font-serif">
       {/* 共通のHeaderが上部に来るため、トップイメージは画面の一番上から始まるようにネガティブマージンかそのまま配置します */}
@@ -63,7 +98,7 @@ export default function Kenocha() {
       </section>
 
       {/* アクセス情報とモバイルオーダー（CTA） */}
-      <section className="px-6 py-32 bg-gray-150 text-gray-900 w-full border-t border-gray-200">
+      <section className="px-6 py-16 bg-gray-150 text-gray-900 w-full border-t border-gray-200">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-16">
           <div className="w-full md:w-1/2">
             <h2 className="text-2xl font-bold mb-8 tracking-widest font-sans">STORE & ORDER</h2>
@@ -75,17 +110,29 @@ export default function Kenocha() {
               <p className="font-bold text-gray-900 mb-2">東神田店</p>
               <p>東京都千代田区東神田1-17-5 東神田イチオクビル2D</p>
             </div>
-            <a
-              href="https://liff.line.me/2010897050-OfcoYNCh"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-primary text-gray-900 px-10 py-5 font-bold tracking-widest hover:bg-opacity-90 transition-all shadow-md font-sans"
-            >
-              モバイルオーダーはこちら
-            </a>
+            {isOpen ? (
+              <a
+                href="https://liff.line.me/2010897050-OfcoYNCh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-primary text-gray-900 px-10 py-5 font-bold tracking-widest hover:bg-opacity-90 transition-all shadow-md font-sans"
+              >
+                モバイルオーダーはこちら
+              </a>
+            ) : (
+              <div className="flex flex-col items-start gap-2">
+                <button
+                  disabled
+                  className="inline-block bg-gray-300 text-gray-500 px-10 py-5 font-bold tracking-widest cursor-not-allowed shadow-none font-sans"
+                >
+                  モバイルオーダーはこちら
+                </button>
+                <p className="text-xs text-red-600 font-bold font-sans">※只今は営業時間外です</p>
+              </div>
+            )}
             <p className="mt-4 text-xs text-gray-500">※モバイルオーダーはLINEミニアプリを使用するためスマホ推奨</p>
           </div>
-          <div className="w-full md:w-1/2">
+          <div className="w-full md:w-1/2 flex flex-col gap-4">
             {/* Google Mapの埋め込み */}
             <div className="aspect-square md:aspect-video w-full rounded overflow-hidden shadow-md border border-gray-900/10">
               <iframe
@@ -98,6 +145,26 @@ export default function Kenocha() {
                 referrerPolicy="strict-origin-when-cross-origin"
                 title="けのちゃ 東神田店 地図"
               ></iframe>
+            </div>
+
+            {/* 営業時間 */}
+            <div className="bg-white py-4 px-6 rounded shadow-sm border border-gray-900/5 text-gray-800">
+              <h3 className="font-bold text-xs tracking-wider uppercase mb-2 text-gray-500 font-sans">BUSINESS HOURS</h3>
+              <dl className="space-y-1.5 text-sm md:text-base leading-relaxed">
+                {[
+                  { day: "月曜日", time: "10:00 〜 15:00" },
+                  { day: "火曜日", time: "10:00 〜 15:00" },
+                  { day: "水曜日", time: "10:00 〜 15:00" },
+                  { day: "木曜日", time: "10:00 〜 15:00" },
+                  { day: "金曜日", time: "10:00 〜 15:00" },
+                  { day: "土・日・祝日", time: "定休日" },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex justify-between border-b border-gray-100 pb-1 last:border-0 last:pb-0">
+                    <dt className="font-bold text-gray-900">{item.day}</dt>
+                    <dd className={item.time === "定休日" ? "text-gray-400 font-sans" : "text-gray-800 font-sans"}>{item.time}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </div>
         </div>
