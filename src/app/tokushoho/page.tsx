@@ -5,7 +5,7 @@ export default function Tokushoho() {
         <h1 className="text-3xl font-bold tracking-widest mb-6 text-center border-b pb-6 border-gray-200">
           特定商取引法に基づく表記
         </h1>
-        
+
         <p className="leading-loose text-gray-600 mb-10 text-center text-sm md:text-base">
           当モバイルオーダーシステムをご利用いただくにあたり、法律に基づく表示事項を公開しています。
         </p>
@@ -28,7 +28,7 @@ export default function Tokushoho() {
             <dt className="text-gray-500 w-48 shrink-0 font-sans font-bold tracking-wider">所在地</dt>
             <dd className="text-gray-800 leading-loose">
               〒101-0031<br />
-              東京都千代田区東神田1-17-5 東神田イチオクビル2D
+              東京都千代田区東神田1-17-5 東神田イチオクビル2F
             </dd>
           </div>
 

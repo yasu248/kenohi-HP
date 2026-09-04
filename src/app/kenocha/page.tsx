@@ -108,7 +108,7 @@ export default function Kenocha() {
             </p>
             <div className="mb-10 text-gray-700 text-sm leading-loose">
               <p className="font-bold text-gray-900 mb-2">東神田店</p>
-              <p>東京都千代田区東神田1-17-5 東神田イチオクビル2D</p>
+              <p>東京都千代田区東神田1-17-5 東神田イチオクビル2F</p>
             </div>
             {isOpen ? (
               <a

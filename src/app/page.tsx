@@ -104,9 +104,8 @@ export default function Home() {
             <div className="py-6 flex flex-col md:flex-row gap-4 md:gap-12">
               <dt className="text-gray-500 w-32 shrink-0 font-sans text-sm mt-1">所在地</dt>
               <dd className="leading-loose">
-                〒101-0031<br />
-                東京都千代田区東神田1-17-5<br />
-                東神田イチオクビル2D
+                〒108-0074<br />
+                東京都港区高輪3-21-4
               </dd>
             </div>
             <div className="py-6 flex flex-col md:flex-row gap-4 md:gap-12">

@@ -14,7 +14,7 @@ export default function Footer() {
             株式会社けのひ<br />
             〒101-0031<br />
             東京都千代田区東神田1-17-5<br />
-            東神田イチオクビル2D
+            東神田イチオクビル2F
           </p>
         </div>
 
