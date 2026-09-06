@@ -235,14 +235,6 @@ export default function Kenocha() {
           <div className="space-y-4">
             {[
               {
-                id: 1,
-                date: "2026.09.01",
-                category: "季節限定",
-                categoryStyle: "bg-emerald-50 text-emerald-800 border-emerald-200",
-                title: "秋季限定「焙じ茶栗ミルクティー」の販売を開始いたしました",
-                desc: "厳選した深煎り焙じ茶に和栗のペーストと特製ミルクを合わせ、香ばしさと優しい甘みが広がる秋限定の特別な一杯です。",
-              },
-              {
                 id: 2,
                 date: "2026.08.25",
                 category: "お知らせ",
@@ -251,7 +243,7 @@ export default function Kenocha() {
                 desc: "店頭でお待たせせずにスムーズにお受け取りいただけるモバイルオーダーを導入いたしました。スマホから簡単にご注文いただけます。",
               },
               {
-                id: 3,
+                id: 1,
                 date: "2026.08.15",
                 category: "OPEN",
                 categoryStyle: "bg-primary/20 text-gray-900 border-primary/40",
@@ -447,13 +439,12 @@ export default function Kenocha() {
                   return (
                     <div
                       key={`day-${dayNum}`}
-                      className={`h-10 flex flex-col items-center justify-center rounded transition-all text-xs relative ${
-                        isToday
+                      className={`h-10 flex flex-col items-center justify-center rounded transition-all text-xs relative ${isToday
                           ? "bg-primary/20 font-bold ring-1 ring-primary"
                           : isClosed
-                          ? "bg-gray-50 text-gray-400"
-                          : "bg-white text-gray-800 hover:bg-gray-50"
-                      }`}
+                            ? "bg-gray-50 text-gray-400"
+                            : "bg-white text-gray-800 hover:bg-gray-50"
+                        }`}
                       title={holidayName ? `${holidayName} (定休日)` : isClosed ? "定休日" : "通常営業 10:00〜15:00"}
                     >
                       <span className={`text-[11px] leading-tight ${item.dayOfWeek === 0 || holidayName ? "text-red-500" : item.dayOfWeek === 6 ? "text-blue-500" : ""}`}>
