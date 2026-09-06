@@ -2,8 +2,115 @@
 
 import { useState, useEffect } from "react";
 
+// 日本の国民の祝日を自動計算（ハッピーマンデー、春分・秋分、振替休日、国民の休日対応）
+function getJapaneseHolidays(year: number, month: number): Record<string, string> {
+  const formatDate = (m: number, d: number) =>
+    `${year}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+  // 第N月曜日の日付を計算
+  const getNthMonday = (m: number, nth: number): number => {
+    const firstDay = new Date(year, m, 1).getDay(); // 0: 日, 1: 月...
+    const firstMonday = firstDay <= 1 ? 2 - firstDay : 9 - firstDay;
+    return firstMonday + (nth - 1) * 7;
+  };
+
+  // 春分の日 (1980〜2099年略算式)
+  const getVernalEquinoxDay = (y: number): number => {
+    return Math.floor(20.8431 + 0.242194 * (y - 1980) - Math.floor((y - 1980) / 4));
+  };
+  // 秋分の日 (1980〜2099年略算式)
+  const getAutumnalEquinoxDay = (y: number): number => {
+    return Math.floor(23.2488 + 0.242194 * (y - 1980) - Math.floor((y - 1980) / 4));
+  };
+
+  const rawHolidays: { month: number; day: number; name: string }[] = [];
+
+  // 1月
+  rawHolidays.push({ month: 0, day: 1, name: "元日" });
+  rawHolidays.push({ month: 0, day: getNthMonday(0, 2), name: "成人の日" });
+
+  // 2月
+  rawHolidays.push({ month: 1, day: 11, name: "建国記念の日" });
+  if (year >= 2020) {
+    rawHolidays.push({ month: 1, day: 23, name: "天皇誕生日" });
+  }
+
+  // 3月
+  rawHolidays.push({ month: 2, day: getVernalEquinoxDay(year), name: "春分の日" });
+
+  // 4月
+  rawHolidays.push({ month: 3, day: 29, name: "昭和の日" });
+
+  // 5月
+  rawHolidays.push({ month: 4, day: 3, name: "憲法記念日" });
+  rawHolidays.push({ month: 4, day: 4, name: "みどりの日" });
+  rawHolidays.push({ month: 4, day: 5, name: "こどもの日" });
+
+  // 7月
+  rawHolidays.push({ month: 6, day: getNthMonday(6, 3), name: "海の日" });
+
+  // 8月
+  if (year >= 2016) {
+    rawHolidays.push({ month: 7, day: 11, name: "山の日" });
+  }
+
+  // 9月
+  const respectForTheAgedDay = getNthMonday(8, 3);
+  const autumnalEquinoxDay = getAutumnalEquinoxDay(year);
+  rawHolidays.push({ month: 8, day: respectForTheAgedDay, name: "敬老の日" });
+  rawHolidays.push({ month: 8, day: autumnalEquinoxDay, name: "秋分の日" });
+
+  // 10月
+  rawHolidays.push({ month: 9, day: getNthMonday(9, 2), name: "スポーツの日" });
+
+  // 11月
+  rawHolidays.push({ month: 10, day: 3, name: "文化の日" });
+  rawHolidays.push({ month: 10, day: 23, name: "勤労感謝の日" });
+
+  const yearHolidayMap: Record<string, string> = {};
+  rawHolidays.forEach((h) => {
+    yearHolidayMap[formatDate(h.month, h.day)] = h.name;
+  });
+
+  // 国民の休日判定（祝日と祝日に挟まれた平日）
+  if (respectForTheAgedDay + 2 === autumnalEquinoxDay) {
+    const sandwichDay = respectForTheAgedDay + 1;
+    const sandwichDate = formatDate(8, sandwichDay);
+    if (!yearHolidayMap[sandwichDate]) {
+      yearHolidayMap[sandwichDate] = "国民の休日";
+    }
+  }
+
+  // 振替休日判定（祝日が日曜日の場合、翌日以降の最初の平日）
+  const sortedDates = Object.keys(yearHolidayMap).sort();
+  for (const dateKey of sortedDates) {
+    const [y, m, d] = dateKey.split("-").map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    if (dateObj.getDay() === 0) {
+      const subDate = new Date(y, m - 1, d + 1);
+      while (yearHolidayMap[`${y}-${String(subDate.getMonth() + 1).padStart(2, "0")}-${String(subDate.getDate()).padStart(2, "0")}`]) {
+        subDate.setDate(subDate.getDate() + 1);
+      }
+      const subKey = `${y}-${String(subDate.getMonth() + 1).padStart(2, "0")}-${String(subDate.getDate()).padStart(2, "0")}`;
+      yearHolidayMap[subKey] = "振替休日";
+    }
+  }
+
+  // 表示対象の月のみを抽出して返却
+  const targetMonthHolidays: Record<string, string> = {};
+  for (const [key, name] of Object.entries(yearHolidayMap)) {
+    const [y, m] = key.split("-").map(Number);
+    if (y === year && m - 1 === month) {
+      targetMonthHolidays[key] = name;
+    }
+  }
+
+  return targetMonthHolidays;
+}
+
 export default function Kenocha() {
   const [isOpen, setIsOpen] = useState(false);
+  const [calDate, setCalDate] = useState(() => new Date());
 
   useEffect(() => {
     const checkIsOpen = () => {
@@ -39,6 +146,49 @@ export default function Kenocha() {
     };
   }, []);
 
+  const calYear = calDate.getFullYear();
+  const calMonth = calDate.getMonth();
+
+  const handlePrevMonth = () => {
+    setCalDate(new Date(calYear, calMonth - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCalDate(new Date(calYear, calMonth + 1, 1));
+  };
+
+  // カレンダーの日付配列生成
+  const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  const today = new Date();
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth();
+  const todayDate = today.getDate();
+
+  // 現在表示している年月の祝日マップを自動算出
+  const currentMonthHolidays = getJapaneseHolidays(calYear, calMonth);
+
+  const calendarDays = [];
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    calendarDays.push(null);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dayOfWeek = (firstDayOfWeek + d - 1) % 7;
+    const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const holidayName = currentMonthHolidays[dateStr];
+    const isClosed = dayOfWeek === 0 || dayOfWeek === 6 || Boolean(holidayName);
+    const isToday = calYear === todayYear && calMonth === todayMonth && d === todayDate;
+
+    calendarDays.push({
+      dayNum: d,
+      dayOfWeek,
+      isClosed,
+      isToday,
+      holidayName,
+    });
+  }
+
   return (
     <main className="min-h-screen bg-[#fcfaf8] text-gray-800 font-serif">
       {/* 共通のHeaderが上部に来るため、トップイメージは画面の一番上から始まるようにネガティブマージンかそのまま配置します */}
@@ -71,8 +221,64 @@ export default function Kenocha() {
         </p>
       </section>
 
+      {/* ニュース・お知らせ (NEWS & TOPICS) */}
+      <section className="px-6 py-20 bg-white w-full border-t border-gray-100">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-gray-200 gap-2">
+            <div>
+              <span className="text-xs text-primary font-bold tracking-widest uppercase font-sans">INFORMATION</span>
+              <h2 className="text-2xl font-bold tracking-widest font-sans mt-1">NEWS & TOPICS</h2>
+            </div>
+            <p className="text-xs text-gray-500 font-sans">けのちゃからのお知らせ</p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                id: 1,
+                date: "2026.09.01",
+                category: "季節限定",
+                categoryStyle: "bg-emerald-50 text-emerald-800 border-emerald-200",
+                title: "秋季限定「焙じ茶栗ミルクティー」の販売を開始いたしました",
+                desc: "厳選した深煎り焙じ茶に和栗のペーストと特製ミルクを合わせ、香ばしさと優しい甘みが広がる秋限定の特別な一杯です。",
+              },
+              {
+                id: 2,
+                date: "2026.08.25",
+                category: "お知らせ",
+                categoryStyle: "bg-amber-50 text-amber-800 border-amber-200",
+                title: "LINE公式アカウントから事前注文（モバイルオーダー）が可能になりました",
+                desc: "店頭でお待たせせずにスムーズにお受け取りいただけるモバイルオーダーを導入いたしました。スマホから簡単にご注文いただけます。",
+              },
+              {
+                id: 3,
+                date: "2026.08.15",
+                category: "OPEN",
+                categoryStyle: "bg-primary/20 text-gray-900 border-primary/40",
+                title: "日本茶ミルクティー専門店「けのちゃ 東神田店」がグランドオープン！",
+                desc: "淹れたての日本茶の香りとコクのあるミルクのハーモニーをお届けするテイクアウト専門店がオープンいたしました。",
+              },
+            ].map((news) => (
+              <article
+                key={news.id}
+                className="p-5 rounded border border-gray-100 bg-[#fcfaf8] hover:border-gray-300 hover:shadow-sm transition-all"
+              >
+                <div className="flex flex-wrap items-center gap-3 mb-2">
+                  <time className="text-xs text-gray-500 font-sans tracking-wider">{news.date}</time>
+                  <span className={`text-[11px] px-2.5 py-0.5 rounded-full border font-sans font-medium ${news.categoryStyle}`}>
+                    {news.category}
+                  </span>
+                </div>
+                <h3 className="font-bold text-gray-900 text-base mb-1.5">{news.title}</h3>
+                <p className="text-xs md:text-sm text-gray-600 leading-relaxed">{news.desc}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* メニュー紹介（静的でミニマルなレイアウト） */}
-      <section className="px-6 py-24 bg-white w-full">
+      <section className="px-6 py-24 bg-[#fcfaf8] w-full border-t border-gray-100">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-xl font-bold mb-16 text-center tracking-widest font-sans">MENU</h2>
 
@@ -104,7 +310,7 @@ export default function Kenocha() {
 
       {/* アクセス情報とモバイルオーダー（CTA） */}
       <section className="px-6 py-16 bg-gray-150 text-gray-900 w-full border-t border-gray-200">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-16">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-start justify-between gap-16">
           <div className="w-full md:w-1/2">
             <h2 className="text-2xl font-bold mb-8 tracking-widest font-sans">STORE & ORDER</h2>
             <p className="text-gray-700 mb-6 leading-loose text-sm md:text-base">
@@ -176,7 +382,7 @@ export default function Kenocha() {
             )}
             <p className="mt-4 text-xs text-gray-500">※モバイルオーダーはLINEミニアプリを使用するためスマホ推奨</p>
           </div>
-          <div className="w-full md:w-1/2 flex flex-col gap-4">
+          <div className="w-full md:w-1/2 flex flex-col gap-6">
             {/* Google Mapの埋め込み */}
             <div className="aspect-square md:aspect-video w-full rounded overflow-hidden shadow-md border border-gray-900/10">
               <iframe
@@ -191,24 +397,94 @@ export default function Kenocha() {
               ></iframe>
             </div>
 
-            {/* 営業時間 */}
-            <div className="bg-white py-4 px-6 rounded shadow-sm border border-gray-900/5 text-gray-800">
-              <h3 className="font-bold text-xs tracking-wider uppercase mb-2 text-gray-500 font-sans">BUSINESS HOURS</h3>
-              <dl className="space-y-1.5 text-sm md:text-base leading-relaxed">
-                {[
-                  { day: "月曜日", time: "10:00 〜 15:00" },
-                  { day: "火曜日", time: "10:00 〜 15:00" },
-                  { day: "水曜日", time: "10:00 〜 15:00" },
-                  { day: "木曜日", time: "10:00 〜 15:00" },
-                  { day: "金曜日", time: "10:00 〜 15:00" },
-                  { day: "土・日・祝日", time: "定休日" },
-                ].map((item, idx) => (
-                  <div key={idx} className="flex justify-between border-b border-gray-100 pb-1 last:border-0 last:pb-0">
-                    <dt className="font-bold text-gray-900">{item.day}</dt>
-                    <dd className={item.time === "定休日" ? "text-gray-400 font-sans" : "text-gray-800 font-sans"}>{item.time}</dd>
+            {/* 営業時間 & 営業カレンダー */}
+            <div className="bg-white p-5 md:p-6 rounded shadow-sm border border-gray-900/5 text-gray-800">
+              <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-4">
+                <div>
+                  <h3 className="font-bold text-xs tracking-wider uppercase text-gray-500 font-sans">BUSINESS CALENDAR</h3>
+                  <p className="text-sm font-bold text-gray-900 font-sans">
+                    {calYear}年 {calMonth + 1}月
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={handlePrevMonth}
+                    aria-label="前月"
+                    className="p-1.5 rounded hover:bg-gray-100 text-gray-600 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={handleNextMonth}
+                    aria-label="翌月"
+                    className="p-1.5 rounded hover:bg-gray-100 text-gray-600 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* カレンダーグリッド */}
+              <div className="grid grid-cols-7 gap-1 text-center font-sans text-xs mb-3">
+                <div className="text-red-500 font-bold py-1">日</div>
+                <div className="text-gray-600 font-bold py-1">月</div>
+                <div className="text-gray-600 font-bold py-1">火</div>
+                <div className="text-gray-600 font-bold py-1">水</div>
+                <div className="text-gray-600 font-bold py-1">木</div>
+                <div className="text-gray-600 font-bold py-1">金</div>
+                <div className="text-blue-500 font-bold py-1">土</div>
+
+                {calendarDays.map((item, idx) => {
+                  if (!item) {
+                    return <div key={`empty-${idx}`} className="h-10" />;
+                  }
+
+                  const { dayNum, isClosed, isToday, holidayName } = item;
+                  return (
+                    <div
+                      key={`day-${dayNum}`}
+                      className={`h-10 flex flex-col items-center justify-center rounded transition-all text-xs relative ${
+                        isToday
+                          ? "bg-primary/20 font-bold ring-1 ring-primary"
+                          : isClosed
+                          ? "bg-gray-50 text-gray-400"
+                          : "bg-white text-gray-800 hover:bg-gray-50"
+                      }`}
+                      title={holidayName ? `${holidayName} (定休日)` : isClosed ? "定休日" : "通常営業 10:00〜15:00"}
+                    >
+                      <span className={`text-[11px] leading-tight ${item.dayOfWeek === 0 || holidayName ? "text-red-500" : item.dayOfWeek === 6 ? "text-blue-500" : ""}`}>
+                        {dayNum}
+                      </span>
+                      <span className="text-[9px] scale-90 leading-tight">
+                        {isClosed ? (
+                          <span className="text-gray-400">休</span>
+                        ) : (
+                          <span className="text-primary font-bold">10-15</span>
+                        )}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* 凡例 & 営業時間注釈 */}
+              <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between text-[11px] text-gray-500 font-sans gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-primary inline-block"></span>
+                    <span>営業 (10:00〜15:00)</span>
                   </div>
-                ))}
-              </dl>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-gray-300 inline-block"></span>
+                    <span>定休日 (土日祝)</span>
+                  </div>
+                </div>
+                <span className="text-[10px] text-gray-400">※平日の通常営業日</span>
+              </div>
             </div>
           </div>
         </div>
