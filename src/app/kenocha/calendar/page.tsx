@@ -9,16 +9,13 @@ import {
   STORE_DEFAULT_INFO,
 } from "@/lib/calendar";
 
-type AspectRatioType = "square" | "story" | "a4";
+type AspectRatioType = "square" | "portrait" | "story" | "a4";
 type ThemeType = "washi" | "white" | "dark";
 
 export default function CalendarExportPage() {
   const [currentDate, setCurrentDate] = useState(() => new Date(2026, 8, 1)); // 2026年9月 (月は0-indexed: 8 = 9月)
   const [aspectRatio, setAspectRatio] = useState<AspectRatioType>("square");
   const [theme, setTheme] = useState<ThemeType>("washi");
-  const [customNotice, setCustomNotice] = useState<string>(
-    "【臨時休業のお知らせ】9月11日(金)、24日(木)、25日(金)は店舗メンテナンスおよび研修のため臨時休業とさせていただきます。\n【モバイルオーダー】9月14日(月)よりLINE公式アカウントから事前注文受付開始！"
-  );
   const [isExporting, setIsExporting] = useState(false);
   const [highlightToday, setHighlightToday] = useState(false);
 
@@ -41,15 +38,6 @@ export default function CalendarExportPage() {
   };
 
   const calendarDays = getMonthCalendarData(year, month, TEMPORARY_CLOSURES);
-
-  // 臨時休業日を抽出してリスト化
-  const tempClosedDays = calendarDays
-    .filter((day) => day && day.isTempClosed)
-    .map((day) => {
-      const d = day!;
-      const dayOfWeekNames = ["日", "月", "火", "水", "木", "金", "土"];
-      return `${month + 1}月${d.dayNum}日(${dayOfWeekNames[d.dayOfWeek]})`;
-    });
 
   // PDF印刷ダイアログの起動
   const handlePrint = () => {
@@ -142,17 +130,13 @@ export default function CalendarExportPage() {
     },
   }[theme];
 
-  // アスペクト比のラッパークラス
+  // アスペクト比のラッパークラス（各比率に厳密に最適化）
   const aspectClasses = {
     square: "w-full max-w-[700px] aspect-square",
-    story: "w-full max-w-[560px] min-h-[920px]",
-    a4: "w-full max-w-[740px] min-h-[1040px]",
+    portrait: "w-full max-w-[640px] aspect-[4/5]",
+    story: "w-full max-w-[480px] aspect-[9/16]",
+    a4: "w-full max-w-[680px] aspect-[1/1.4142]",
   }[aspectRatio];
-
-  const monthNamesEn = [
-    "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
-    "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
-  ];
 
   return (
     <div className="min-h-screen bg-[#f3f0ea] pt-24 pb-20 px-4 font-serif print:p-0 print:m-0 print:bg-white">
@@ -236,7 +220,7 @@ export default function CalendarExportPage() {
           {/* フォーマット・比率切り替え */}
           <div>
             <label className="block text-xs font-bold text-gray-700 font-sans mb-2">画像・出力サイズ</label>
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5">
               <button
                 onClick={() => setAspectRatio("square")}
                 className={`py-1.5 px-2 text-xs font-sans rounded border text-center transition-all cursor-pointer ${aspectRatio === "square"
@@ -244,7 +228,16 @@ export default function CalendarExportPage() {
                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                   }`}
               >
-                📸 正方形 (1:1)
+                📸 1:1 (正方形)
+              </button>
+              <button
+                onClick={() => setAspectRatio("portrait")}
+                className={`py-1.5 px-2 text-xs font-sans rounded border text-center transition-all cursor-pointer ${aspectRatio === "portrait"
+                  ? "bg-gray-900 text-white border-gray-900 font-bold shadow-sm"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  }`}
+              >
+                🖼️ 4:5 (縦長フィード)
               </button>
               <button
                 onClick={() => setAspectRatio("story")}
@@ -253,7 +246,7 @@ export default function CalendarExportPage() {
                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                   }`}
               >
-                📱 縦長 (9:16)
+                📱 9:16 (ストーリー)
               </button>
               <button
                 onClick={() => setAspectRatio("a4")}
@@ -313,20 +306,6 @@ export default function CalendarExportPage() {
             </div>
           </div>
         </div>
-
-        {/* お知らせテキストの編集 */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <label className="block text-xs font-bold text-gray-700 font-sans mb-1">
-            今月のお知らせ・注釈メモ（カレンダー下部に掲載されます。自由に編集可能）
-          </label>
-          <textarea
-            value={customNotice}
-            onChange={(e) => setCustomNotice(e.target.value)}
-            rows={2}
-            className="w-full text-xs font-sans p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 text-gray-800"
-            placeholder="臨時休業や新メニュー、イベント情報などを入力..."
-          />
-        </div>
       </div>
 
       {/* プレビュー＆印刷・画像出力対象エリア */}
@@ -334,27 +313,20 @@ export default function CalendarExportPage() {
         <div
           ref={calendarRef}
           id="calendar-print-target"
-          className={`${aspectClasses} ${themeStyles.sheetBg} ${themeStyles.textColor} p-7 md:p-9 rounded-2xl shadow-xl border ${themeStyles.borderColor} flex flex-col justify-between transition-all duration-300 print:shadow-none print:border-none print:rounded-none print:max-w-full print:w-full print:p-6`}
+          className={`${aspectClasses} ${themeStyles.sheetBg} ${themeStyles.textColor} p-6 md:p-8 rounded-2xl shadow-xl border ${themeStyles.borderColor} flex flex-col justify-between transition-all duration-300 print:shadow-none print:border-none print:rounded-none print:max-w-full print:w-full print:p-6`}
           style={{ boxSizing: "border-box" }}
         >
           {/* ヘッダー */}
-          <div className={`pb-4 mb-4 border-b ${themeStyles.headerBorder}`}>
+          <div className={`pb-3 mb-2 border-b ${themeStyles.headerBorder} ${aspectRatio === "portrait" ? "mt-8 md:mt-12" : aspectRatio === "story" ? "mt-16 md:mt-24" : ""}`}>
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <img
                   src="/icon.png"
                   alt="KENOCHA"
-                  className="w-11 h-11 object-contain rounded-full bg-white/80 p-1 shadow-sm border border-gray-200/50"
+                  className={`object-contain rounded-full bg-white/80 p-1 shadow-sm border border-gray-200/50 transition-all ${aspectRatio === "portrait" || aspectRatio === "square" ? "w-12 h-12 md:w-14 md:h-14" : "w-10 h-10"}`}
                 />
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-sans font-bold tracking-widest text-[#56b964] uppercase">
-                      KENOCHA HIGASHI-KANDA
-                    </span>
-                    <span className="text-[9px] font-sans text-gray-400">|</span>
-                    <span className={`text-[10px] font-sans ${themeStyles.subTextColor}`}>日本茶ミルクティー専門店</span>
-                  </div>
-                  <h2 className="text-xl md:text-2xl font-bold tracking-wider mt-0.5">
+                  <h2 className={`font-bold tracking-wider transition-all ${aspectRatio === "portrait" || aspectRatio === "square" ? "text-2xl md:text-3xl" : "text-xl md:text-2xl"}`}>
                     {STORE_DEFAULT_INFO.name}
                   </h2>
                 </div>
@@ -362,9 +334,6 @@ export default function CalendarExportPage() {
 
               {/* 年月メイン表示 */}
               <div className="text-right">
-                <div className="text-xs font-sans tracking-widest uppercase font-bold text-gray-400">
-                  {monthNamesEn[month]} {year}
-                </div>
                 <div className="text-2xl md:text-3xl font-bold tracking-tight font-sans text-[#56b964] flex items-baseline justify-end gap-1">
                   <span>{year}</span>
                   <span className="text-sm font-normal text-gray-500">年</span>
@@ -375,43 +344,27 @@ export default function CalendarExportPage() {
             </div>
           </div>
 
-          {/* 基本営業案内バナー */}
-          <div className="grid grid-cols-3 gap-2 mb-4 text-center font-sans text-xs">
-            <div className={`py-1.5 px-2 rounded-lg ${themeStyles.cardBg} border ${themeStyles.borderColor}`}>
-              <span className="text-[10px] block text-gray-400 font-bold">営業時間</span>
-              <span className="font-bold text-[13px] text-[#56b964]">10:00 〜 15:00</span>
-            </div>
-            <div className={`py-1.5 px-2 rounded-lg ${themeStyles.cardBg} border ${themeStyles.borderColor}`}>
-              <span className="text-[10px] block text-gray-400 font-bold">通常営業日</span>
-              <span className="font-bold text-[13px]">月曜日 〜 金曜日</span>
-            </div>
-            <div className={`py-1.5 px-2 rounded-lg ${themeStyles.cardBg} border ${themeStyles.borderColor}`}>
-              <span className="text-[10px] block text-gray-400 font-bold">定休日</span>
-              <span className="font-bold text-[13px] text-gray-500">土曜・日曜・祝日</span>
-            </div>
-          </div>
-
-          {/* カレンダーグリッド */}
-          <div className="flex-1 flex flex-col justify-center my-2">
+          {/* カレンダーグリッド (比率に合わせて綺麗に全体を満たす) */}
+          <div className={`w-full flex-1 flex flex-col ${aspectRatio === "portrait" || aspectRatio === "story" ? "justify-center" : "justify-between"} pt-1`}>
             {/* 曜日ヘッダー (土日は目立たないグレーに) */}
-            <div className="grid grid-cols-7 gap-1.5 text-center font-sans text-xs font-bold mb-1.5 pb-1 border-b border-gray-200/50">
-              <div className="py-1 text-gray-400 font-medium">日 (SUN)</div>
-              <div className="py-1">月 (MON)</div>
-              <div className="py-1">火 (TUE)</div>
-              <div className="py-1">水 (WED)</div>
-              <div className="py-1">木 (THU)</div>
-              <div className="py-1">金 (FRI)</div>
-              <div className="py-1 text-gray-400 font-medium">土 (SAT)</div>
+            <div className="grid grid-cols-7 gap-2 text-center font-sans text-xs font-bold mb-1.5 pb-1 border-b border-gray-200/50">
+              <div className="py-0.5 text-gray-400 font-medium">日 (SUN)</div>
+              <div className="py-0.5">月 (MON)</div>
+              <div className="py-0.5">火 (TUE)</div>
+              <div className="py-0.5">水 (WED)</div>
+              <div className="py-0.5">木 (THU)</div>
+              <div className="py-0.5">金 (FRI)</div>
+              <div className="py-0.5 text-gray-400 font-medium">土 (SAT)</div>
             </div>
 
             {/* 日付セル */}
-            <div className="grid grid-cols-7 gap-1.5 text-center font-sans">
+            <div className={`grid grid-cols-7 gap-2 text-center font-sans w-full ${aspectRatio === "portrait" || aspectRatio === "story" ? "aspect-square max-h-[80%]" : "flex-1"}`}>
               {calendarDays.map((item, idx) => {
                 if (!item) {
                   return (
                     <div
                       key={`empty-${idx}`}
-                      className="min-h-[58px] md:min-h-[64px] rounded-lg opacity-15 border border-dashed border-gray-300"
+                      className="h-full min-h-[54px] rounded-lg opacity-15 border border-dashed border-gray-300"
                     />
                   );
                 }
@@ -422,7 +375,7 @@ export default function CalendarExportPage() {
                 return (
                   <div
                     key={`day-${dayNum}`}
-                    className={`min-h-[58px] md:min-h-[64px] p-1 flex flex-col justify-between items-center rounded-lg border transition-all text-xs relative ${isTempClosed
+                    className={`h-full min-h-[54px] p-1.5 flex flex-col items-center rounded-lg border transition-all text-xs relative ${isTempClosed
                       ? themeStyles.tempClosedBg
                       : isRegularOff
                         ? themeStyles.regularOffBg
@@ -433,7 +386,7 @@ export default function CalendarExportPage() {
                       }`}
                   >
                     {/* 日付番号 & 祝日名 */}
-                    <div className="w-full flex items-center justify-between px-1">
+                    <div className="w-full flex items-center justify-between px-0.5">
                       <span
                         className={`text-sm md:text-base leading-none ${isTempClosed
                           ? `${themeStyles.tempClosedText} text-base md:text-lg`
@@ -445,7 +398,7 @@ export default function CalendarExportPage() {
                         {dayNum}
                       </span>
                       {holidayName && (
-                        <span className={`text-[7px] leading-tight px-1 py-0.5 rounded truncate max-w-[46px] scale-90 ${isTempClosed
+                        <span className={`text-[7.5px] leading-tight px-1 py-0.5 rounded whitespace-nowrap ${isTempClosed
                           ? "bg-amber-100 text-amber-900 font-bold"
                           : "bg-gray-200 text-gray-600 font-medium"
                           }`}>
@@ -455,17 +408,17 @@ export default function CalendarExportPage() {
                     </div>
 
                     {/* ステータスバッジ */}
-                    <div className="w-full flex justify-center pb-0.5">
+                    <div className="w-full mt-auto pt-0.5 flex justify-center">
                       {isTempClosed ? (
-                        <span className={`text-[9px] md:text-[10px] px-1.5 py-0.5 rounded font-black tracking-tight ${themeStyles.tempClosedBadge} whitespace-nowrap`}>
+                        <span className={`${aspectRatio === 'story' ? 'text-[7px] px-1' : 'text-[9px] md:text-[10px] px-2'} py-0.5 rounded font-black tracking-tighter ${themeStyles.tempClosedBadge} whitespace-nowrap`}>
                           臨時休業
                         </span>
                       ) : isRegularOff ? (
-                        <span className={`text-[8px] md:text-[8.5px] px-1.5 py-0.5 rounded font-normal ${themeStyles.regularOffBadge}`}>
+                        <span className={`${aspectRatio === 'story' ? 'text-[7.5px] px-1' : 'text-[8.5px] md:text-[9.5px] px-2'} py-0.5 rounded font-medium ${themeStyles.regularOffBadge} whitespace-nowrap`}>
                           定休
                         </span>
                       ) : (
-                        <span className={`text-[8.5px] md:text-[9.5px] px-1.5 py-0.5 rounded font-bold ${themeStyles.openBadge} shadow-xs`}>
+                        <span className={`${aspectRatio === 'story' ? 'text-[6.5px] px-0.5' : 'text-[8.5px] md:text-[9.5px] px-1.5'} py-0.5 rounded font-bold ${themeStyles.openBadge} shadow-xs whitespace-nowrap tracking-tighter`}>
                           10:00-15:00
                         </span>
                       )}
@@ -473,55 +426,6 @@ export default function CalendarExportPage() {
                   </div>
                 );
               })}
-            </div>
-          </div>
-
-          {/* 凡例 & 臨時休業リスト */}
-          <div className="mt-3 pt-3 border-t border-gray-200/60 flex flex-wrap items-center justify-between gap-2 text-[11px] font-sans">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#56b964] inline-block"></span>
-                <span className="font-bold">営業日 (10:00〜15:00)</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-gray-400">
-                <span className="w-2.5 h-2.5 rounded-full bg-gray-300 inline-block"></span>
-                <span>定休日 (土日祝)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#f59e0b] inline-block"></span>
-                <span className="font-bold text-[#b45309]">臨時休業日</span>
-              </div>
-            </div>
-
-            {tempClosedDays.length > 0 && (
-              <div className="text-[11px] font-bold text-[#b45309] bg-[#fef9f2] px-3 py-1 rounded-md border border-[#fde68a] shadow-xs flex items-center gap-1.5">
-                <span className="text-xs">休</span>
-                <span>今月の臨時休業：{tempClosedDays.join("、")}</span>
-              </div>
-            )}
-          </div>
-
-          {/* お知らせメモ欄 */}
-          {customNotice && (
-            <div className={`mt-3 p-3 rounded-xl border ${themeStyles.noticeBg} text-xs leading-relaxed font-sans`}>
-              <div className="flex items-start gap-2">
-                <span className="text-[#56b964] font-bold mt-0.5 text-sm">📢</span>
-                <div className="whitespace-pre-line text-[11.5px] font-medium text-gray-700">
-                  {customNotice}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* フッター店舗詳細 */}
-          <div className={`mt-4 pt-3 border-t ${themeStyles.headerBorder} flex flex-col md:flex-row items-center justify-between gap-2 text-[10.5px] font-sans ${themeStyles.subTextColor}`}>
-            <div className="flex flex-wrap items-center gap-3 text-center md:text-left">
-              <span className="font-bold text-gray-800">けのちゃ 東神田店</span>
-              <span>〒101-0031 東京都千代田区東神田1-2-3</span>
-              <span>📱 LINE公式: @kenocha</span>
-            </div>
-            <div className="flex items-center gap-2 font-serif text-[10px] italic text-gray-400">
-              <span>{STORE_DEFAULT_INFO.concept}</span>
             </div>
           </div>
         </div>
