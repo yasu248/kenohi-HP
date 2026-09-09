@@ -12,14 +12,20 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--color-primary);
   --color-secondary: var(--color-secondary);
+  --font-serif: var(--font-noto-serif-jp), "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", serif;
+  --font-sans: var(--font-inter), "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
 }
+
 
 body {
   background: var(--background);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum" 1;
 }
+
 
 /* ケン・バーンズ効果（極めてゆっくりとしたズームイン） */
 @keyframes slow-zoom {

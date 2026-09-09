@@ -265,7 +265,7 @@ export default function Kenocha() {
                 date: "2026.08.25",
                 category: "お知らせ",
                 categoryStyle: "bg-amber-50 text-amber-800 border-amber-200",
-                title: "LINE公式アカウントから事前注文（モバイルオーダー）が9月14日(月)より利用可能になります。",
+                title: "LINE公式アカウントから事前注文（モバイルオーダー）が9月14日(月)より利用可能になります!",
                 desc: "店頭でお待たせせずにスムーズにお受け取りいただけるモバイルオーダーを導入いたしました。スマホから簡単にご注文いただけます。",
               },
               {
