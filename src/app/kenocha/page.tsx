@@ -279,7 +279,7 @@ export default function Kenocha() {
             ].map((news) => (
               <article
                 key={news.id}
-                className="p-5 rounded border border-gray-100 bg-[#fcfaf8] hover:border-gray-300 hover:shadow-sm transition-all"
+                className="p-5 rounded border border-gray-100 bg-[#fcfaf8]"
               >
                 <div className="flex flex-wrap items-center gap-3 mb-2">
                   <time className="text-xs text-gray-500 font-sans tracking-wider">{news.date}</time>
@@ -304,7 +304,7 @@ export default function Kenocha() {
             {/* メニューアイテム1 */}
             <div className="flex flex-col">
               <div className="aspect-square bg-gray-100 mb-8 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800&auto=format&fit=crop" alt="ストレートティー" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800&auto=format&fit=crop" alt="ストレートティー" className="w-full h-full object-cover" />
               </div>
               <h3 className="text-lg font-bold mb-4">ストレートティー</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
@@ -315,7 +315,7 @@ export default function Kenocha() {
             {/* メニューアイテム2 */}
             <div className="flex flex-col">
               <div className="aspect-square bg-gray-100 mb-8 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop" alt="ミルクティー" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                <img src="https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop" alt="ミルクティー" className="w-full h-full object-cover" />
               </div>
               <h3 className="text-lg font-bold mb-4">日本茶ミルクティー</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
