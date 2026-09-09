@@ -213,10 +213,10 @@ export default function Kenocha() {
         <p className="leading-loose text-gray-700 md:text-lg mb-10">
           厳選された国産茶葉の豊かな香りと、<br className="hidden md:block" />
           なめらかなミルクが織りなす至福の一杯。<br />
-          ご注文をいただいてから、一つひとつ丁寧にお淹れします。
+          一つひとつ丁寧にお淹れします。
         </p>
         <p className="text-sm text-gray-500 tracking-widest leading-loose">
-          日替わりの茶葉、和青茶、釜炒り緑茶など、<br />
+          日替わりのお茶、青茶、釜炒り緑茶など、<br />
           ここでしか味わえない和の体験を。
         </p>
       </section>
@@ -440,10 +440,10 @@ export default function Kenocha() {
                     <div
                       key={`day-${dayNum}`}
                       className={`h-10 flex flex-col items-center justify-center rounded transition-all text-xs relative ${isToday
-                          ? "bg-primary/20 font-bold ring-1 ring-primary"
-                          : isClosed
-                            ? "bg-gray-50 text-gray-400"
-                            : "bg-white text-gray-800 hover:bg-gray-50"
+                        ? "bg-primary/20 font-bold ring-1 ring-primary"
+                        : isClosed
+                          ? "bg-gray-50 text-gray-400"
+                          : "bg-white text-gray-800 hover:bg-gray-50"
                         }`}
                       title={holidayName ? `${holidayName} (定休日)` : isClosed ? "定休日" : "通常営業 10:00〜15:00"}
                     >
