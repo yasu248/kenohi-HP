@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -7,7 +8,7 @@ export default function Footer() {
         {/* ブランド情報 */}
         <div className="md:col-span-1 flex flex-col">
           <Link href="/" className="flex items-center gap-2 font-bold text-gray-900 tracking-widest text-lg mb-4">
-            <img src="/icon.png" alt="KENOHI Logo" className="w-8 h-8 rounded-full bg-white p-0.5 object-contain" />
+            <Image src="/icon.png" alt="KENOHI Logo" width={32} height={32} className="w-8 h-8 rounded-full bg-white p-0.5 object-contain" />
             <span>KENOHI Inc.</span>
           </Link>
           <p className="text-sm leading-loose">

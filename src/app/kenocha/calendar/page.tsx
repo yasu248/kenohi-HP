@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { toPng } from "html-to-image";
 import {
   getMonthCalendarData,
@@ -320,9 +321,11 @@ export default function CalendarExportPage() {
           <div className={`pb-3 mb-2 border-b ${themeStyles.headerBorder} ${aspectRatio === "portrait" ? "mt-8 md:mt-12" : aspectRatio === "story" ? "mt-16 md:mt-24" : ""}`}>
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <img
+                <Image
                   src="/icon.png"
                   alt="KENOCHA"
+                  width={56}
+                  height={56}
                   className={`object-contain rounded-full bg-white/80 p-1 shadow-sm border border-gray-200/50 transition-all ${aspectRatio === "portrait" || aspectRatio === "square" ? "w-12 h-12 md:w-14 md:h-14" : "w-10 h-10"}`}
                 />
                 <div>

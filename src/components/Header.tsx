@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,7 +38,7 @@ export default function Header() {
     >
       <div className="max-w-6xl mx-auto px-6 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2 font-bold tracking-widest text-lg">
-          <img src="/icon.png" alt="KENOHI Logo" className={`w-8 h-8 object-contain transition-all duration-300 ${isScrolled ? "rounded-full bg-white p-0.5" : ""}`} />
+          <Image src="/icon.png" alt="KENOHI Logo" width={32} height={32} className={`w-8 h-8 object-contain transition-all duration-300 ${isScrolled ? "rounded-full bg-white p-0.5" : ""}`} />
           <span style={{ fontFamily: "Georgia, serif" }}>KENOHI</span>
         </Link>
 

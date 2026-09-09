@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 // 日本の国民の祝日を自動計算（ハッピーマンデー、春分・秋分、振替休日、国民の休日対応）
 function getJapaneseHolidays(year: number, month: number): Record<string, string> {
@@ -226,7 +227,7 @@ export default function Kenocha() {
       {/* メッセージ */}
       <section className="px-6 py-24 max-w-3xl mx-auto text-center">
         <div className="flex justify-center mb-8">
-          <img src="/icon.png" alt="KENOCHA Logo" className="w-24 h-24 object-contain mix-blend-multiply opacity-90" />
+          <Image src="/icon.png" alt="KENOCHA Logo" width={96} height={96} className="w-24 h-24 object-contain mix-blend-multiply opacity-90" />
         </div>
         <p className="leading-loose text-gray-700 md:text-lg mb-10">
           厳選された国産茶葉の豊かな香りと、<br className="hidden md:block" />
@@ -304,7 +305,7 @@ export default function Kenocha() {
             {/* メニューアイテム1 */}
             <div className="flex flex-col">
               <div className="aspect-square bg-gray-100 mb-8 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800&auto=format&fit=crop" alt="ストレートティー" className="w-full h-full object-cover" />
+                <Image src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800&auto=format&fit=crop" alt="ストレートティー" fill className="object-cover" />
               </div>
               <h3 className="text-lg font-bold mb-4">ストレートティー</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
@@ -315,7 +316,7 @@ export default function Kenocha() {
             {/* メニューアイテム2 */}
             <div className="flex flex-col">
               <div className="aspect-square bg-gray-100 mb-8 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop" alt="ミルクティー" className="w-full h-full object-cover" />
+                <Image src="https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop" alt="ミルクティー" fill className="object-cover" />
               </div>
               <h3 className="text-lg font-bold mb-4">日本茶ミルクティー</h3>
               <p className="text-gray-600 text-sm leading-relaxed">

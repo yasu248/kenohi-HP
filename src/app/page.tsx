@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -32,7 +33,7 @@ export default function Home() {
       {/* 2. 企業理念 (Vision / About Us) */}
       <section id="about" className="px-6 py-32 max-w-4xl mx-auto text-center scroll-mt-20">
         <div className="flex justify-center mb-8">
-          <img src="/icon.png" alt="KENOHI Logo" className="w-20 h-20 object-contain mix-blend-multiply opacity-90" />
+          <Image src="/icon.png" alt="KENOHI Logo" width={80} height={80} className="w-20 h-20 object-contain mix-blend-multiply opacity-90" />
         </div>
         <h2 className="text-2xl font-bold mb-12 tracking-widest font-sans">VISION</h2>
         <p className="leading-loose text-gray-700 md:text-lg text-left md:text-center">
@@ -53,10 +54,11 @@ export default function Home() {
 
           <div className="bg-white p-8 md:p-12 shadow-sm flex flex-col md:flex-row items-center gap-10">
             <div className="w-full md:w-1/2 aspect-[4/3] bg-gray-200 relative overflow-hidden">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?q=80&w=1000&auto=format&fit=crop"
                 alt="けのちゃ店舗イメージ"
-                className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
+                fill
+                className="object-cover hover:scale-105 transition-transform duration-700"
               />
             </div>
             <div className="w-full md:w-1/2 flex flex-col items-start">
