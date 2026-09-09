@@ -304,7 +304,7 @@ export default function Kenocha() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
             {/* メニューアイテム1 */}
             <div className="flex flex-col">
-              <div className="aspect-square bg-gray-100 mb-8 overflow-hidden">
+              <div className="aspect-square bg-gray-100 mb-8 overflow-hidden relative">
                 <Image src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800&auto=format&fit=crop" alt="ストレートティー" fill className="object-cover" />
               </div>
               <h3 className="text-lg font-bold mb-4">ストレートティー</h3>
@@ -315,7 +315,7 @@ export default function Kenocha() {
 
             {/* メニューアイテム2 */}
             <div className="flex flex-col">
-              <div className="aspect-square bg-gray-100 mb-8 overflow-hidden">
+              <div className="aspect-square bg-gray-100 mb-8 overflow-hidden relative">
                 <Image src="https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=800&auto=format&fit=crop" alt="ミルクティー" fill className="object-cover" />
               </div>
               <h3 className="text-lg font-bold mb-4">日本茶ミルクティー</h3>
