@@ -2,6 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+/kenocha/calendarでSNS用カレンダー作成ツールに遷移できる
+
 First, run the development server:
 
 ```bash
