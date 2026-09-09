@@ -108,6 +108,13 @@ function getJapaneseHolidays(year: number, month: number): Record<string, string
   return targetMonthHolidays;
 }
 
+// 臨時休業日の設定 (YYYY-MM-DD: 理由またはラベル)
+const TEMPORARY_CLOSURES: Record<string, string> = {
+  "2026-09-11": "臨時休業",
+  "2026-09-24": "臨時休業",
+  "2026-09-25": "臨時休業",
+};
+
 export default function Kenocha() {
   const [isOpen, setIsOpen] = useState(false);
   const [calDate, setCalDate] = useState(() => new Date());
@@ -123,6 +130,14 @@ export default function Kenocha() {
 
       // 平日 (月〜金) かつ 10:00 〜 15:00
       if (day >= 1 && day <= 5) {
+        const year = jstDate.getFullYear();
+        const month = jstDate.getMonth();
+        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(jstDate.getDate()).padStart(2, "0")}`;
+        const holidays = getJapaneseHolidays(year, month);
+        if (holidays[dateStr] || TEMPORARY_CLOSURES[dateStr]) {
+          return false;
+        }
+
         const timeValue = hour * 100 + minutes;
         if (timeValue >= 1000 && timeValue < 1500) {
           return true;
@@ -177,13 +192,16 @@ export default function Kenocha() {
     const dayOfWeek = (firstDayOfWeek + d - 1) % 7;
     const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
     const holidayName = currentMonthHolidays[dateStr];
-    const isClosed = dayOfWeek === 0 || dayOfWeek === 6 || Boolean(holidayName);
+    const isTempClosed = Boolean(TEMPORARY_CLOSURES[dateStr]);
+    const isRegularClosed = dayOfWeek === 0 || dayOfWeek === 6 || Boolean(holidayName);
+    const isClosed = isRegularClosed || isTempClosed;
     const isToday = calYear === todayYear && calMonth === todayMonth && d === todayDate;
 
     calendarDays.push({
       dayNum: d,
       dayOfWeek,
       isClosed,
+      isTempClosed,
       isToday,
       holidayName,
     });
@@ -235,11 +253,19 @@ export default function Kenocha() {
           <div className="space-y-4">
             {[
               {
+                id: 3,
+                date: "2026.09.09",
+                category: "休業情報",
+                categoryStyle: "bg-amber-50 text-amber-800 border-amber-200",
+                title: "9月の臨時休業日のお知らせ（9月11日・24日・25日）",
+                desc: "誠に勝手ながら、2026年9月11日(金)、24日(木)、25日(金)は店舗メンテナンスおよび研修のため臨時休業とさせていただきます。ご来店を予定されていたお客様にはご不便をおかけいたしますが、何卒ご理解賜りますようお願い申し上げます。",
+              },
+              {
                 id: 2,
                 date: "2026.08.25",
                 category: "お知らせ",
                 categoryStyle: "bg-amber-50 text-amber-800 border-amber-200",
-                title: "LINE公式アカウントから事前注文（モバイルオーダー）が可能になりました",
+                title: "LINE公式アカウントから事前注文（モバイルオーダー）が9月14日(月)より利用可能になります。",
                 desc: "店頭でお待たせせずにスムーズにお受け取りいただけるモバイルオーダーを導入いたしました。スマホから簡単にご注文いただけます。",
               },
               {
@@ -435,23 +461,27 @@ export default function Kenocha() {
                     return <div key={`empty-${idx}`} className="h-10" />;
                   }
 
-                  const { dayNum, isClosed, isToday, holidayName } = item;
+                  const { dayNum, isClosed, isTempClosed, isToday, holidayName } = item;
                   return (
                     <div
                       key={`day-${dayNum}`}
                       className={`h-10 flex flex-col items-center justify-center rounded transition-all text-xs relative ${isToday
                         ? "bg-primary/20 font-bold ring-1 ring-primary"
-                        : isClosed
-                          ? "bg-gray-50 text-gray-400"
-                          : "bg-white text-gray-800 hover:bg-gray-50"
+                        : isTempClosed
+                          ? "bg-amber-50/80 text-amber-900 border border-amber-200/80"
+                          : isClosed
+                            ? "bg-gray-50 text-gray-400"
+                            : "bg-white text-gray-800 hover:bg-gray-50"
                         }`}
-                      title={holidayName ? `${holidayName} (定休日)` : isClosed ? "定休日" : "通常営業 10:00〜15:00"}
+                      title={isTempClosed ? "臨時休業" : holidayName ? `${holidayName} (定休日)` : isClosed ? "定休日" : "通常営業 10:00〜15:00"}
                     >
-                      <span className={`text-[11px] leading-tight ${item.dayOfWeek === 0 || holidayName ? "text-red-500" : item.dayOfWeek === 6 ? "text-blue-500" : ""}`}>
+                      <span className={`text-[11px] leading-tight ${isTempClosed ? "text-amber-800 font-bold" : item.dayOfWeek === 0 || holidayName ? "text-red-500" : item.dayOfWeek === 6 ? "text-blue-500" : ""}`}>
                         {dayNum}
                       </span>
                       <span className="text-[9px] scale-90 leading-tight">
-                        {isClosed ? (
+                        {isTempClosed ? (
+                          <span className="text-amber-800 font-bold text-[7.5px] tracking-tighter whitespace-nowrap">臨時休業</span>
+                        ) : isClosed ? (
                           <span className="text-gray-400">休</span>
                         ) : (
                           <span className="text-primary font-bold">10-15</span>
@@ -464,7 +494,7 @@ export default function Kenocha() {
 
               {/* 凡例 & 営業時間注釈 */}
               <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between text-[11px] text-gray-500 font-sans gap-2">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-primary inline-block"></span>
                     <span>営業 (10:00〜15:00)</span>
@@ -472,6 +502,10 @@ export default function Kenocha() {
                   <div className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-gray-300 inline-block"></span>
                     <span>定休日 (土日祝)</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
+                    <span>臨時休業</span>
                   </div>
                 </div>
                 <span className="text-[10px] text-gray-400">※平日の通常営業日</span>
@@ -483,3 +517,4 @@ export default function Kenocha() {
     </main>
   );
 }
+
