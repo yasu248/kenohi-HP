@@ -347,6 +347,22 @@ export default function CalendarExportPage() {
             </div>
           </div>
 
+          {/* 店舗情報タブ */}
+          <div className="flex gap-2 w-full mb-3">
+            <div className={`flex-1 border ${themeStyles.borderColor} rounded-lg py-2 px-1 flex flex-col items-center justify-center`}>
+              <span className="text-[9px] md:text-[10px] text-gray-400 mb-0.5">営業時間</span>
+              <span className="font-bold text-[#56b964] text-xs md:text-sm">{STORE_DEFAULT_INFO.hours}</span>
+            </div>
+            <div className={`flex-1 border ${themeStyles.borderColor} rounded-lg py-2 px-1 flex flex-col items-center justify-center`}>
+              <span className="text-[9px] md:text-[10px] text-gray-400 mb-0.5">通常営業日</span>
+              <span className="font-bold text-gray-700 text-xs md:text-sm">{STORE_DEFAULT_INFO.businessDays.replace("（平日）", "")}</span>
+            </div>
+            <div className={`flex-1 border ${themeStyles.borderColor} rounded-lg py-2 px-1 flex flex-col items-center justify-center`}>
+              <span className="text-[9px] md:text-[10px] text-gray-400 mb-0.5">定休日</span>
+              <span className="font-bold text-gray-700 text-xs md:text-sm">{STORE_DEFAULT_INFO.closedDays}</span>
+            </div>
+          </div>
+
           {/* カレンダーグリッド (比率に合わせて綺麗に全体を満たす) */}
           <div className={`w-full flex-1 flex flex-col ${aspectRatio === "portrait" || aspectRatio === "story" ? "justify-center" : "justify-between"} pt-1`}>
             {/* 曜日ヘッダー (土日は目立たないグレーに) */}
