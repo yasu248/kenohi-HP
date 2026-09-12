@@ -67,8 +67,11 @@ export default function Home() {
               <p className="text-gray-600 mb-8 leading-relaxed">
                 淹れたてのお茶と優しいミルクの出会い。厳選された茶葉を使用したストレートティーや、オリジナルの日本茶ミルクティーを提供するテイクアウト専門ブランドです。
               </p>
-              <Link href="/kenocha" className="inline-block border border-primary text-primary px-8 py-4 text-sm tracking-widest hover:bg-primary hover:text-white transition-colors font-sans">
-                ブランドサイトを見る
+              <Link href="/kenocha" className="group inline-flex items-center justify-between w-full md:w-auto bg-[#56b964]/10 border border-[#56b964]/20 text-[#3a7d45] px-8 py-4 text-sm font-bold tracking-widest rounded-sm active:scale-95 transition-all duration-200 font-sans">
+                <span>ブランドサイトを見る</span>
+                <svg className="w-5 h-5 ml-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             </div>
           </div>
