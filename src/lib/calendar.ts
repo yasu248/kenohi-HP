@@ -109,6 +109,7 @@ export const TEMPORARY_CLOSURES: Record<string, string> = {
   "2026-09-11": "臨時休業（研修・設備点検）",
   "2026-09-24": "臨時休業（店舗メンテナンス）",
   "2026-09-25": "臨時休業（店舗メンテナンス）",
+  "2026-10-07": "臨時休業（店舗メンテナンス）",
 };
 
 export interface CalendarDayItem {

@@ -14,7 +14,7 @@ type AspectRatioType = "square" | "portrait" | "story" | "a4";
 type ThemeType = "washi" | "white" | "dark";
 
 export default function CalendarExportPage() {
-  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 8, 1)); // 2026年9月 (月は0-indexed: 8 = 9月)
+  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 9, 1)); // 2026年10月 (月は0-indexed: 9 = 10月)
   const [aspectRatio, setAspectRatio] = useState<AspectRatioType>("square");
   const [theme, setTheme] = useState<ThemeType>("washi");
   const [isExporting, setIsExporting] = useState(false);

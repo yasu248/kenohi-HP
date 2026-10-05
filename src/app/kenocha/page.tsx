@@ -114,6 +114,7 @@ const TEMPORARY_CLOSURES: Record<string, string> = {
   "2026-09-11": "臨時休業",
   "2026-09-24": "臨時休業",
   "2026-09-25": "臨時休業",
+  "2026-10-07": "臨時休業",
 };
 
 export default function Kenocha() {
@@ -253,6 +254,14 @@ export default function Kenocha() {
 
           <div className="space-y-4">
             {[
+              {
+                id: 4,
+                date: "2026.10.05",
+                category: "休業情報",
+                categoryStyle: "bg-amber-50 text-amber-800 border-amber-200",
+                title: "10月の臨時休業日のお知らせ（10月7日）",
+                desc: "誠に勝手ながら、2026年10月7日(水)は店舗メンテナンスのため臨時休業とさせていただきます。ご来店を予定されていたお客様にはご不便をおかけいたしますが、何卒ご理解賜りますようお願い申し上げます。",
+              },
               {
                 id: 3,
                 date: "2026.09.09",
