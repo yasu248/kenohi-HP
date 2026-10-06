@@ -41,7 +41,7 @@ export default function Home() {
           現代のライフスタイルに合わせて再構築します。<br />
           <br />
           日常の中でほっと一息つける、<br className="hidden md:block" />
-          そんな「ケ（日常）」を少しだけ特別にする時間を提供することが、<br className="hidden md:block" />
+          そんな「ケの日（日常）」を少しだけ特別にする時間を提供することが、<br className="hidden md:block" />
           株式会社けのひの使命です。
         </p>
         <div className="divider my-16"></div>
@@ -62,7 +62,7 @@ export default function Home() {
               />
             </div>
             <div className="w-full md:w-1/2 flex flex-col items-start">
-              <span className="text-xs text-gray-500 tracking-widest mb-3 font-sans">日本茶ミルクティー専門店</span>
+              <span className="text-xs text-gray-500 tracking-widest mb-3 font-sans">日本茶専門店</span>
               <h3 className="text-2xl font-bold mb-4">けのちゃ (KENOCHA)</h3>
               <p className="text-gray-600 mb-8 leading-relaxed">
                 淹れたてのお茶と優しいミルクの出会い。厳選された茶葉を使用したストレートティーや、オリジナルの日本茶ミルクティーを提供するテイクアウト専門ブランドです。

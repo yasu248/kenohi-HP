@@ -233,7 +233,6 @@ export default function Kenocha() {
         <p className="leading-loose text-gray-700 md:text-lg mb-10">
           厳選された国産茶葉の豊かな香りと、<br className="hidden md:block" />
           なめらかなミルクが織りなす至福の一杯。<br />
-          一つひとつ丁寧にお淹れします。
         </p>
         <p className="text-sm text-gray-500 tracking-widest leading-loose">
           日替わりのお茶、青茶、釜炒り緑茶など、<br />
