@@ -55,9 +55,11 @@ export default function Home() {
           <div className="bg-white p-8 md:p-12 shadow-sm flex flex-col md:flex-row items-center gap-10">
             <div className="w-full md:w-1/2 aspect-[4/3] bg-gray-200 relative overflow-hidden">
               <Image
-                src="https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?q=80&w=1000&auto=format&fit=crop"
+                src="/ai_tea_shop_v4.jpg"
                 alt="けのちゃ店舗イメージ"
                 fill
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover hover:scale-105 transition-transform duration-700"
               />
             </div>
@@ -65,7 +67,7 @@ export default function Home() {
               <span className="text-xs text-gray-500 tracking-widest mb-3 font-sans">日本茶専門店</span>
               <h3 className="text-2xl font-bold mb-4">けのちゃ (KENOCHA)</h3>
               <p className="text-gray-600 mb-8 leading-relaxed">
-                淹れたてのお茶と優しいミルクの出会い。厳選された茶葉を使用したストレートティーや、オリジナルの日本茶ミルクティーを提供するテイクアウト専門ブランドです。
+                厳選された茶葉を使用したストレートティーや、オリジナルの日本茶ミルクティーを提供するテイクアウト専門ブランドです。
               </p>
               <Link href="/kenocha" className="group inline-flex items-center justify-between w-full md:w-auto bg-[#56b964]/10 border border-[#56b964]/20 text-[#3a7d45] px-8 py-4 text-sm font-bold tracking-widest rounded-sm active:scale-95 transition-all duration-200 font-sans">
                 <span>ブランドサイトを見る</span>
