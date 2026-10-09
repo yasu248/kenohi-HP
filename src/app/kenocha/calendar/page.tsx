@@ -22,9 +22,6 @@ export default function CalendarExportPage() {
   const [highlightToday, setHighlightToday] = useState(false);
   const [customClosures, setCustomClosures] = useState<Record<string, string>>(TEMPORARY_CLOSURES);
   const [isEditing, setIsEditing] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passwordInput, setPasswordInput] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
 
   const calendarRef = useRef<HTMLDivElement>(null);
   const backupClosuresRef = useRef<Record<string, string>>({});
@@ -177,54 +174,6 @@ export default function CalendarExportPage() {
     story: "w-full max-w-[480px] aspect-[9/16]",
     a4: "w-full max-w-[680px] aspect-[1/1.4142]",
   }[aspectRatio];
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passwordInput === "kenohi2033f") {
-      setIsAuthenticated(true);
-      setErrorMsg("");
-    } else {
-      setErrorMsg("パスワードが違います");
-    }
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-[#f3f0ea] flex items-center justify-center p-4 font-sans">
-        <form onSubmit={handleLogin} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200/80 max-w-sm w-full">
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#56b964]/10 mb-4">
-              <span className="text-2xl">🔒</span>
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">カレンダー管理ツール</h1>
-            <p className="text-xs text-gray-500">アクセスするにはパスワードを入力してください</p>
-          </div>
-          <div className="mb-4">
-            <input
-              type="password"
-              value={passwordInput}
-              onChange={(e) => setPasswordInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#56b964] transition"
-              placeholder="パスワード"
-              autoFocus
-            />
-            {errorMsg && <p className="text-red-500 text-xs mt-2 text-center">{errorMsg}</p>}
-          </div>
-          <button
-            type="submit"
-            className="w-full py-3 bg-[#56b964] text-white font-bold rounded-lg hover:bg-[#4a9f56] transition shadow-sm"
-          >
-            ログイン
-          </button>
-          <div className="mt-6 text-center">
-            <Link href="/kenocha" className="text-xs text-gray-500 hover:text-gray-800 transition underline">
-              けのちゃトップに戻る
-            </Link>
-          </div>
-        </form>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#f3f0ea] pt-24 pb-20 px-4 font-serif print:p-0 print:m-0 print:bg-white">
