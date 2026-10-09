@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { getClosures } from "@/app/actions/kv";
 
 // 日本の国民の祝日を自動計算（ハッピーマンデー、春分・秋分、振替休日、国民の休日対応）
 function getJapaneseHolidays(year: number, month: number): Record<string, string> {
@@ -109,17 +110,14 @@ function getJapaneseHolidays(year: number, month: number): Record<string, string
   return targetMonthHolidays;
 }
 
-// 臨時休業日の設定 (YYYY-MM-DD: 理由またはラベル)
-const TEMPORARY_CLOSURES: Record<string, string> = {
-  "2026-09-11": "臨時休業",
-  "2026-09-24": "臨時休業",
-  "2026-09-25": "臨時休業",
-  "2026-10-07": "臨時休業",
-};
-
 export default function Kenocha() {
   const [isOpen, setIsOpen] = useState(false);
   const [calDate, setCalDate] = useState(() => new Date());
+  const [customClosures, setCustomClosures] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    getClosures().then(setCustomClosures);
+  }, []);
 
   useEffect(() => {
     const checkIsOpen = () => {
@@ -136,7 +134,7 @@ export default function Kenocha() {
         const month = jstDate.getMonth();
         const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(jstDate.getDate()).padStart(2, "0")}`;
         const holidays = getJapaneseHolidays(year, month);
-        if (holidays[dateStr] || TEMPORARY_CLOSURES[dateStr]) {
+        if (holidays[dateStr] || customClosures[dateStr]) {
           return false;
         }
 
@@ -161,7 +159,7 @@ export default function Kenocha() {
       clearTimeout(timeoutId);
       clearInterval(timer);
     };
-  }, []);
+  }, [customClosures]);
 
   const calYear = calDate.getFullYear();
   const calMonth = calDate.getMonth();
@@ -194,7 +192,7 @@ export default function Kenocha() {
     const dayOfWeek = (firstDayOfWeek + d - 1) % 7;
     const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
     const holidayName = currentMonthHolidays[dateStr];
-    const isTempClosed = Boolean(TEMPORARY_CLOSURES[dateStr]);
+    const isTempClosed = Boolean(customClosures[dateStr]);
     const isRegularClosed = dayOfWeek === 0 || dayOfWeek === 6 || Boolean(holidayName);
     const isClosed = isRegularClosed || isTempClosed;
     const isToday = calYear === todayYear && calMonth === todayMonth && d === todayDate;

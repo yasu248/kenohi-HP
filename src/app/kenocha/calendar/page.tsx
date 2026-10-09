@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { toPng } from "html-to-image";
+import { getClosures, saveClosures } from "@/app/actions/kv";
 import {
   getMonthCalendarData,
   TEMPORARY_CLOSURES,
@@ -28,13 +29,18 @@ export default function CalendarExportPage() {
   const calendarRef = useRef<HTMLDivElement>(null);
   const backupClosuresRef = useRef<Record<string, string>>({});
 
+  useEffect(() => {
+    getClosures().then(setCustomClosures);
+  }, []);
+
   const startEditing = () => {
     backupClosuresRef.current = { ...customClosures };
     setIsEditing(true);
   };
 
-  const saveEditing = () => {
+  const saveEditing = async () => {
     setIsEditing(false);
+    await saveClosures(customClosures);
   };
 
   const cancelEditing = () => {
