@@ -9,8 +9,9 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
   }
 
   // Basic IP-based rate limiting key
-  // For local dev and some hosting platforms, fallback to x-forwarded-for or "local"
-  const ip = req.headers.get('x-forwarded-for') || 'local';
+  // For Vercel, x-forwarded-for can be a comma-separated list
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (req.headers.get('x-real-ip') || 'local');
   const rateLimitKey = `rate_limit_auth_${ip}`;
 
   // 1. Check if the IP is currently locked out
@@ -61,17 +62,24 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
         if (attempts >= 2) {
           const webhookUrl = process.env.ALERT_WEBHOOK_URL;
           if (webhookUrl) {
-            event.waitUntil(
-              fetch(webhookUrl, {
+            try {
+              const res = await fetch(webhookUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // Simple JSON format compatible with Slack and Discord incoming webhooks
+                headers: {
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'SecurityAlertBot/1.0',
+                },
                 body: JSON.stringify({
-                  content: `⚠️ 管理画面への不正アクセス（パスワード間違い）を検知しました。\nIPアドレス: ${ip}\n失敗回数: ${attempts}回`, // For Discord
-                  text: `⚠️ 管理画面への不正アクセス（パスワード間違い）を検知しました。\nIPアドレス: ${ip}\n失敗回数: ${attempts}回`, // For Slack
+                  content: `⚠️ けのちゃカレンダー管理画面への不正アクセス（パスワード間違い）を検知しました。\nIPアドレス: ${ip}\n失敗回数: ${attempts}回`, // For Discord
+                  text: `⚠️ けのちゃカレンダー管理画面への不正アクセス（パスワード間違い）を検知しました。\nIPアドレス: ${ip}\n失敗回数: ${attempts}回`, // For Slack
                 }),
-              }).catch(err => console.error('Webhook notification error:', err))
-            );
+              });
+              if (!res.ok) {
+                console.error('Discord webhook responded with error status:', res.status, await res.text());
+              }
+            } catch (err) {
+              console.error('Webhook notification error:', err);
+            }
           }
         }
       } catch (error) {
