@@ -19,8 +19,25 @@ export default function CalendarExportPage() {
   const [theme, setTheme] = useState<ThemeType>("washi");
   const [isExporting, setIsExporting] = useState(false);
   const [highlightToday, setHighlightToday] = useState(false);
+  const [customClosures, setCustomClosures] = useState<Record<string, string>>(TEMPORARY_CLOSURES);
+  const [isEditing, setIsEditing] = useState(false);
 
   const calendarRef = useRef<HTMLDivElement>(null);
+  const backupClosuresRef = useRef<Record<string, string>>({});
+
+  const startEditing = () => {
+    backupClosuresRef.current = { ...customClosures };
+    setIsEditing(true);
+  };
+
+  const saveEditing = () => {
+    setIsEditing(false);
+  };
+
+  const cancelEditing = () => {
+    setCustomClosures(backupClosuresRef.current);
+    setIsEditing(false);
+  };
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -38,7 +55,20 @@ export default function CalendarExportPage() {
     setCurrentDate(new Date(now.getFullYear(), now.getMonth(), 1));
   };
 
-  const calendarDays = getMonthCalendarData(year, month, TEMPORARY_CLOSURES);
+  const toggleClosure = (dateStr: string) => {
+    if (!isEditing) return;
+    setCustomClosures((prev) => {
+      const next = { ...prev };
+      if (next[dateStr]) {
+        delete next[dateStr];
+      } else {
+        next[dateStr] = "臨時休業";
+      }
+      return next;
+    });
+  };
+
+  const calendarDays = getMonthCalendarData(year, month, customClosures);
 
   // PDF印刷ダイアログの起動
   const handlePrint = () => {
@@ -163,8 +193,20 @@ export default function CalendarExportPage() {
 
           <div className="flex items-center gap-3">
             <button
+              onClick={startEditing}
+              disabled={isEditing}
+              className="px-4 py-2.5 rounded-lg text-xs font-sans font-bold transition shadow flex items-center gap-2 bg-orange-500 text-white hover:bg-orange-600 cursor-pointer disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:bg-orange-500"
+              title="カレンダーの日付をクリックして臨時休業を追加・解除できます"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+              休業日を編集
+            </button>
+            <button
               onClick={handlePrint}
-              className="px-4 py-2.5 bg-gray-900 text-white rounded-lg text-xs font-sans font-bold hover:bg-gray-800 transition shadow flex items-center gap-2 cursor-pointer"
+              disabled={isEditing}
+              className="px-4 py-2.5 bg-gray-900 text-white rounded-lg text-xs font-sans font-bold hover:bg-gray-800 transition shadow flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:bg-gray-900"
               title="ブラウザの印刷ダイアログからPDF保存または印刷を行います"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,8 +216,8 @@ export default function CalendarExportPage() {
             </button>
             <button
               onClick={handleDownloadPng}
-              disabled={isExporting}
-              className="px-4 py-2.5 bg-[#43a047] text-white rounded-lg text-xs font-sans font-bold hover:bg-[#388e3c] transition shadow flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+              disabled={isExporting || isEditing}
+              className="px-4 py-2.5 bg-[#43a047] text-white rounded-lg text-xs font-sans font-bold hover:bg-[#388e3c] transition shadow flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:bg-[#43a047]"
               title="SNS投稿用の高解像度PNG画像をダウンロードします"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -309,14 +351,50 @@ export default function CalendarExportPage() {
         </div>
       </div>
 
+      {/* 編集中用アクションバー (別の場所に配置) */}
+      {isEditing && (
+        <div className="max-w-4xl mx-auto mb-6 bg-red-50 border border-red-200 p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 no-print shadow-sm">
+          <div className="flex items-center gap-3 text-red-600 font-bold">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span>
+            <span>休業日を編集中...</span>
+            <span className="text-xs font-normal text-red-500">カレンダーの日付をクリックして切り替えてください</span>
+          </div>
+          <div className="flex gap-2 w-full md:w-auto">
+            <button
+              onClick={cancelEditing}
+              className="flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 transition cursor-pointer"
+            >
+              キャンセル
+            </button>
+            <button
+              onClick={saveEditing}
+              className="flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold bg-red-500 text-white hover:bg-red-600 transition shadow cursor-pointer flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              保存する
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* プレビュー＆印刷・画像出力対象エリア */}
       <div className="flex justify-center calendar-print-container">
         <div
           ref={calendarRef}
           id="calendar-print-target"
-          className={`${aspectClasses} ${themeStyles.sheetBg} ${themeStyles.textColor} p-6 md:p-8 rounded-2xl shadow-xl border ${themeStyles.borderColor} flex flex-col justify-between transition-all duration-300 print:shadow-none print:border-none print:rounded-none print:max-w-full print:w-full print:p-6`}
+          className={`${aspectClasses} ${themeStyles.sheetBg} ${themeStyles.textColor} p-6 md:p-8 rounded-2xl shadow-xl flex flex-col justify-between transition-all duration-300 print:shadow-none print:border-none print:rounded-none print:max-w-full print:w-full print:p-6 relative ${isEditing ? "border-2 border-red-500" : `border ${themeStyles.borderColor}`}`}
           style={{ boxSizing: "border-box" }}
         >
+          {isEditing && (
+            <div className="absolute top-4 right-4 bg-red-500 text-white text-xs md:text-sm font-bold px-3 py-1 rounded-full animate-pulse shadow-md z-20 no-print">
+              編集中
+            </div>
+          )}
           {/* ヘッダー */}
           <div className={`pb-3 mb-2 border-b ${themeStyles.headerBorder} ${aspectRatio === "portrait" ? "mt-8 md:mt-12" : aspectRatio === "story" ? "mt-16 md:mt-24" : ""}`}>
             <div className="flex items-center justify-between gap-4">
@@ -388,13 +466,16 @@ export default function CalendarExportPage() {
                   );
                 }
 
-                const { dayNum, isClosed, isTempClosed, isToday, holidayName } = item;
+                const { dayNum, isClosed, isTempClosed, isToday, holidayName, dateStr } = item;
                 const isRegularOff = isClosed && !isTempClosed; // 通常の休日・定休日（土日祝）
 
                 return (
                   <div
                     key={`day-${dayNum}`}
-                    className={`h-full min-h-[54px] p-1.5 flex flex-col items-center rounded-lg border transition-all text-xs relative ${isTempClosed
+                    onClick={() => toggleClosure(dateStr)}
+                    className={`h-full min-h-[54px] p-1.5 flex flex-col items-center rounded-lg border transition-all text-xs relative ${
+                      isEditing ? "cursor-pointer hover:opacity-80" : ""
+                    } ${isTempClosed
                       ? themeStyles.tempClosedBg
                       : isRegularOff
                         ? themeStyles.regularOffBg
