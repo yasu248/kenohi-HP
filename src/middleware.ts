@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import type { NextRequest, NextFetchEvent } from 'next/server';
 import { kv } from '@vercel/kv';
 
-export async function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest, event: NextFetchEvent) {
   // Only apply this middleware to the calendar edit page
   if (!req.nextUrl.pathname.startsWith('/kenocha/calendar')) {
     return NextResponse.next();
@@ -30,7 +30,7 @@ export async function middleware(req: NextRequest) {
 
   // 2. Process Basic Authentication
   const basicAuth = req.headers.get('authorization');
-  
+
   if (basicAuth) {
     const authValue = basicAuth.split(' ')[1];
     // Base64 decode the auth string
@@ -39,7 +39,7 @@ export async function middleware(req: NextRequest) {
     // Password validation. Uses env var, with fallback to the previously hardcoded one.
     // In Vercel, you should add ADMIN_PASSWORD to environment variables.
     const validPassword = process.env.ADMIN_PASSWORD || 'kenohi2033f';
-    
+
     if (pwd === validPassword) {
       // If password is correct, clear the failed attempts counter for this IP
       try {
@@ -55,6 +55,24 @@ export async function middleware(req: NextRequest) {
         // If it's the first failed attempt, set the expiration to 30 minutes (1800 seconds)
         if (attempts === 1) {
           await kv.expire(rateLimitKey, 1800);
+        }
+
+        // Notify if attempts >= 2
+        if (attempts >= 2) {
+          const webhookUrl = process.env.ALERT_WEBHOOK_URL;
+          if (webhookUrl) {
+            event.waitUntil(
+              fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Simple JSON format compatible with Slack and Discord incoming webhooks
+                body: JSON.stringify({
+                  content: `⚠️ 管理画面への不正アクセス（パスワード間違い）を検知しました。\nIPアドレス: ${ip}\n失敗回数: ${attempts}回`, // For Discord
+                  text: `⚠️ 管理画面への不正アクセス（パスワード間違い）を検知しました。\nIPアドレス: ${ip}\n失敗回数: ${attempts}回`, // For Slack
+                }),
+              }).catch(err => console.error('Webhook notification error:', err))
+            );
+          }
         }
       } catch (error) {
         console.error('KV incr error in middleware:', error);
