@@ -36,7 +36,7 @@ export default function Tokushoho() {
           <div className="py-6 flex flex-col md:flex-row gap-4 md:gap-12">
             <dt className="text-gray-500 w-48 shrink-0 font-sans font-bold tracking-wider">電話番号</dt>
             <dd className="text-gray-800">
-              050-5585-1949
+              080-8286-1783
             </dd>
           </div>
 
